@@ -117,25 +117,25 @@ export default function TicketDetail({ ticket }: { ticket?: Ticket }) {
 
       {/* 🔹 Messages */}
       <div className={styles.messages}>
-        {ticket.messages.map((m) => (
+        {ticket.messages.map(
+          (m) => (
             console.log(m.timestamp),
-          <div
-            key={m.id}
-            className={`${styles.message} ${
-              m.direction === "inbound"
-                ? styles.inbound
-                : styles.outbound
-            }`}
-          >
-            <strong className={styles.direction}>
-            {m.direction}
-            </strong>
-            {m.content}
-            <div className={styles.timestamp}>
-            {formatTimeAgo(m.timestamp)}
-            </div>
-          </div>
-        ))}
+            (
+              <div
+                key={m.id}
+                className={`${styles.message} ${
+                  m.direction === "inbound" ? styles.inbound : styles.outbound
+                }`}
+              >
+                <strong className={styles.direction}>{m.direction}</strong>
+                {m.content}
+                <div className={styles.timestamp}>
+                  {formatTimeAgo(m.timestamp)}
+                </div>
+              </div>
+            )
+          )
+        )}
       </div>
 
       {/* 🔹 Actions */}

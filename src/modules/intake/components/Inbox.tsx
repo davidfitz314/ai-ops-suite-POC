@@ -84,9 +84,7 @@ export default function Inbox({
 
             <div className={styles.rightCol}>
               <StatusDot status={t.status} />
-              <div className={styles.time}>
-                {formatTimeAgo(t.updatedAt)}
-              </div>
+              <div className={styles.time}>{formatTimeAgo(t.updatedAt)}</div>
             </div>
           </div>
 

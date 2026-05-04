@@ -20,16 +20,16 @@ const styles = {
     color: "white",
     border: "none",
     "&:hover": {
-        background: theme.colors.primaryHover,
+      background: theme.colors.primaryHover,
     },
   }),
 
   secondary: css({
     background: theme.colors.surface,
     border: `1px solid  ${theme.colors.border}`,
-    color:  theme.colors.textPrimary,
+    color: theme.colors.textPrimary,
     "&:hover": {
-        background: theme.colors.surfaceSubtle,
+      background: theme.colors.surfaceSubtle,
     },
   }),
 };
@@ -40,10 +40,7 @@ export default function Button({
   onClick,
 }: ButtonProps) {
   return (
-    <button
-      className={`${styles.base} ${styles[variant]}`}
-      onClick={onClick}
-    >
+    <button className={`${styles.base} ${styles[variant]}`} onClick={onClick}>
       {children}
     </button>
   );

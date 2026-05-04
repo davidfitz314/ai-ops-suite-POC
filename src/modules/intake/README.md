@@ -11,6 +11,7 @@ Turns incoming messages into tracked tickets with an automatic response.
 
 ````
 ---
+
 ## Workflow
 
 ```mermaid
@@ -22,6 +23,7 @@ flowchart TD
 
 
 ```
+
 ---
 
 ## UI Mapping
@@ -38,7 +40,7 @@ flowchart LR
 
 ## Purpose
 
-````
+```
 Entry point for all external input into the system.
 
-````
+```
