@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { css } from "@emotion/css";
-import { useNavigate } from "react-router-dom";
 import EmailInbox from "./components/EmailInbox";
 import EmailDetail from "./components/EmailDetail";
 import { mockEmails } from "./data/mockEmails";
@@ -24,7 +23,6 @@ const styles = {
 };
 
 export default function EmailApp() {
-  const navigate = useNavigate();
 
   const [emails, setEmails] = useState<EmailThread[]>(mockEmails);
   const [selectedId, setSelectedId] = useState<number | undefined>(
