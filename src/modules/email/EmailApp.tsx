@@ -8,6 +8,7 @@ import { theme } from "../../shared/theme";
 import TopBar from "../../shared/components/TopBar";
 import TaskPanel from "./components/TaskPanel";
 import { useTasks } from "../../shared/context/TaskContext";
+import { useNavigate } from "react-router-dom";
 
 const styles = {
   container: css({
@@ -46,6 +47,7 @@ const styles = {
 };
 
 export default function EmailApp() {
+  const navigate = useNavigate();
   const { tasks, addTask } = useTasks();
   const [showTasks, setShowTasks] = useState(false);
 
@@ -82,13 +84,14 @@ export default function EmailApp() {
   };
 
   const handleCreateTask = () => {
-    if (!selected?.extractedTask) return;
+    const fallback = selected?.subject || "Follow-up task";
 
-    addTask({
-      id: Date.now(),
-      title: selected.extractedTask,
-      status: "open",
-      createdAt: Date.now(),
+    const taskText = selected?.extractedTask || fallback;
+
+    navigate("/tasks", {
+      state: {
+        prefill: taskText,
+      },
     });
   };
 

@@ -3,9 +3,9 @@ import { css } from "@emotion/css";
 import type { Task } from "../types";
 import { useTasks } from "../../../shared/context/TaskContext";
 import { theme } from "../../../shared/theme";
-import TextArea from "../../../shared/components/TextArea";
 import Button from "../../../shared/components/Button";
 import StatusDot from "../../../shared/components/StatusDot";
+import Input from "../../../shared/components/Input";
 
 const styles = {
   container: css({
@@ -61,13 +61,11 @@ export default function TaskDetail({ task }: { task?: Task }) {
     <div className={styles.container}>
       <div className={styles.title}>Task</div>
 
-      <TextArea
+      <Input
         value={title}
         onChange={(e) => {
           const newTitle = e.target.value;
           setTitle(newTitle);
-          // TODO: Add visual indicator for "saving..." or "live update in progress"
-          // e.g. debounce updates or show temporary "Saving..." state
 
           updateTask({
             ...task,

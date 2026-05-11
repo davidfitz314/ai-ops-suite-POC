@@ -2,7 +2,7 @@ import { css } from "@emotion/css";
 import { useTasks } from "../../../shared/context/TaskContext";
 import { theme } from "../../../shared/theme";
 import StatusDot from "../../../shared/components/StatusDot";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../../../shared/components/Input";
 import Button from "../../../shared/components/Button";
 
@@ -72,17 +72,24 @@ export default function TaskList({
   selectedId,
   onSelect,
   onCreateTask,
+  prefill,
 }: {
   selectedId?: number;
   onSelect: (id: number) => void;
   onCreateTask: (title: string) => void;
+  prefill?: string;
 }) {
   const { tasks } = useTasks();
 
   const [newTitle, setNewTitle] = useState("");
+  useEffect(() => {
+    if (prefill) {
+      setNewTitle(prefill);
+    }
+  }, [prefill]);
   const handleCreate = () => {
     if (!newTitle.trim()) return;
-  
+
     onCreateTask(newTitle.trim());
     setNewTitle("");
   };
@@ -97,21 +104,19 @@ export default function TaskList({
   return (
     <div className={styles.container}>
       <div className={styles.createRow}>
-  <Input
-    value={newTitle}
-    onChange={(e) => setNewTitle(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") {
-        handleCreate();
-      }
-    }}
-    placeholder="Create new task..."
-  />
+        <Input
+          value={newTitle}
+          onChange={(e) => setNewTitle(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleCreate();
+            }
+          }}
+          placeholder="Create new task..."
+        />
 
-  <Button onClick={handleCreate}>
-    Add
-  </Button>
-</div>
+        <Button onClick={handleCreate}>Add</Button>
+      </div>
 
       {Object.entries(grouped).map(([key, list]) => {
         if (list.length === 0) return null;

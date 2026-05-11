@@ -32,15 +32,29 @@ const styles = {
       background: theme.colors.surfaceSubtle,
     },
   }),
+
+  text: css({
+    background: "transparent",
+    color: theme.colors.textSecondary,
+    padding: "6px 8px",
+
+    "&:hover": {
+      background: "transparent",
+      color: theme.colors.textPrimary,
+    },
+  }),
 };
 
 export default function Button({
   children,
   variant = "primary",
-  onClick,
-}: ButtonProps) {
+  ...props
+}: {
+  children: React.ReactNode;
+  variant?: "primary" | "secondary" | "text";
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button className={`${styles.base} ${styles[variant]}`} onClick={onClick}>
+    <button className={`${styles.base} ${styles[variant]}`} {...props}>
       {children}
     </button>
   );

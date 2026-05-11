@@ -2,6 +2,8 @@ import { css } from "@emotion/css";
 import { useNavigate } from "react-router-dom";
 import { theme } from "../../../shared/theme";
 import TopBar from "../../../shared/components/TopBar";
+import { useTasks } from "../../../shared/context/TaskContext";
+import StatusDot from "../../../shared/components/StatusDot";
 
 const styles = {
   container: css({
@@ -81,10 +83,32 @@ const styles = {
     color: theme.colors.textSecondary,
     textAlign: "center",
   }),
+
+  taskStats: css({
+    marginTop: 10,
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+  }),
+
+  statRow: css({
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+  }),
 };
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { tasks } = useTasks();
+
+  const counts = {
+    open: tasks.filter((t) => t.status === "open").length,
+    inProgress: tasks.filter((t) => t.status === "inProgress").length,
+    done: tasks.filter((t) => t.status === "done").length,
+  };
 
   return (
     <div className={styles.container}>
@@ -108,7 +132,32 @@ export default function Landing() {
           </div>
 
           <div className={styles.card} onClick={() => navigate("/tasks")}>
-            📋 Task Manager
+            <div>🧾 Task Manager</div>
+
+            <div className={styles.taskStats}>
+              {counts.open > 0 && (
+                <div className={styles.statRow}>
+                  <StatusDot status="open" />
+                  Open ({counts.open})
+                </div>
+              )}
+              {counts.inProgress > 0 && (
+                <div className={styles.statRow}>
+                  <StatusDot status="inProgress" />
+                  In Progress ({counts.inProgress})
+                </div>
+              )}
+              {counts.done > 0 && (
+                <div className={styles.statRow}>
+                  <StatusDot status="done" />
+                  Done ({counts.done})
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.card} onClick={() => navigate("/settings")}>
+            ⚙️ Settings
           </div>
         </div>
       </div>
