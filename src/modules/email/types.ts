@@ -13,9 +13,15 @@ export type EmailThread = {
   from: string;
   status: EmailStatus;
   messages: EmailMessage[];
-  updatedAt: number;
 
   // core features
   suggestedReply?: string;
+  extractedTask?: string;
+};
+
+export type Email = {
+  id: number;
+  subject: string;
+  body: string;
   extractedTask?: string;
 };

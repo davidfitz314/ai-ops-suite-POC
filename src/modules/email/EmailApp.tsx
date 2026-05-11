@@ -1,14 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { css } from "@emotion/css";
-import EmailInbox from "./components/EmailInbox";
-import EmailDetail from "./components/EmailDetail";
-import { mockEmails } from "./data/mockEmails";
-import type { EmailThread } from "./types";
 import { theme } from "../../shared/theme";
 import TopBar from "../../shared/components/TopBar";
-import TaskPanel from "./components/TaskPanel";
-import { useTasks } from "../../shared/context/TaskContext";
-import { useNavigate } from "react-router-dom";
+import EmailInbox from "./components/EmailInbox";
+import EmailDetail from "./components/EmailDetail";
+import * as emailApi from "../../api/email";
+import type { EmailThread } from "./types";
 
 const styles = {
   container: css({
@@ -23,124 +20,56 @@ const styles = {
     flex: 1,
     overflow: "hidden",
   }),
-
-  menuButton: css({
-    cursor: "pointer",
-    fontSize: 18,
-    padding: "6px 10px",
-    borderRadius: 6,
-    color: theme.colors.textPrimary,
-
-    "&:hover": {
-      background: theme.colors.surfaceSubtle,
-    },
-  }),
-
-  badge: css({
-    marginLeft: 6,
-    fontSize: 11,
-    padding: "2px 6px",
-    borderRadius: 10,
-    background: theme.colors.primary,
-    color: "#fff",
-  }),
 };
 
 export default function EmailApp() {
-  const navigate = useNavigate();
-  const { tasks } = useTasks();
-  const [showTasks, setShowTasks] = useState(false);
+  const [threads, setThreads] = useState<EmailThread[]>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const updateThread = (updated: EmailThread) => {
+    setThreads((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+  };
 
-  const [emails, setEmails] = useState<EmailThread[]>(mockEmails);
-  const [selectedId, setSelectedId] = useState<number | undefined>(
-    mockEmails[0]?.id
-  );
+  // 🔥 Load threads from API
+  useEffect(() => {
+    emailApi.getEmails().then((data) => {
+      setThreads(data);
 
-  const selected = emails.find((e) => e.id === selectedId);
+      if (data.length > 0) {
+        setSelectedId(data[0].id);
+      }
+    });
+  }, []);
 
-  const handleSendReply = (reply: string) => {
-    if (!selectedId) return;
+  // 🔥 Handle selecting an email
+  const handleSelect = async (id: number) => {
+    setSelectedId(id);
 
-    setEmails((prev) =>
-      prev.map((email) => {
-        if (email.id !== selectedId) return email;
+    // mark as read in API
+    await emailApi.markAsRead(id);
 
-        return {
-          ...email,
-          status: "replied",
-          updatedAt: Date.now(),
-          messages: [
-            ...email.messages,
-            {
-              id: Date.now(),
-              direction: "outbound",
-              content: reply,
-              timestamp: Date.now(),
-            },
-          ],
-        };
-      })
+    // update local state
+    setThreads((prev) =>
+      prev.map((t) =>
+        t.id === id && t.status === "unread" ? { ...t, status: "read" } : t
+      )
     );
   };
 
-  const handleCreateTask = () => {
-    const fallback = selected?.subject || "Follow-up task";
-
-    const taskText = selected?.extractedTask || fallback;
-
-    navigate("/tasks", {
-      state: {
-        prefill: taskText,
-      },
-    });
-  };
+  // 🔥 Find selected thread
+  const selected = threads.find((t) => t.id === selectedId) || undefined;
 
   return (
     <div className={styles.container}>
-      <TopBar
-        title="Email Secretary"
-        showBack
-        rightAction={
-          <div
-            className={styles.menuButton}
-            onClick={() => setShowTasks((prev) => !prev)}
-          >
-            ☰
-            {tasks.length > 0 && (
-              <span className={styles.badge}>{tasks.length}</span>
-            )}
-          </div>
-        }
-      />
+      <TopBar title="Email" showBack />
 
       <div className={styles.content}>
         <EmailInbox
-          emails={emails}
+          emails={threads}
           selectedId={selectedId}
-          onSelect={(e) => {
-            setSelectedId(e.id);
-
-            setEmails((prev) =>
-              prev.map((email) =>
-                email.id === e.id && email.status === "unread"
-                  ? { ...email, status: "read" }
-                  : email
-              )
-            );
-          }}
+          onSelect={handleSelect}
         />
 
-        <EmailDetail
-          thread={selected}
-          onSendReply={handleSendReply}
-          onCreateTask={handleCreateTask}
-        />
-
-        <TaskPanel
-          tasks={tasks}
-          isOpen={showTasks}
-          onClose={() => setShowTasks(false)}
-        />
+        <EmailDetail thread={selected} onThreadUpdate={updateThread} />
       </div>
     </div>
   );

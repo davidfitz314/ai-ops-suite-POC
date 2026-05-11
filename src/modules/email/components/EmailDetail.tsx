@@ -5,6 +5,8 @@ import Button from "../../../shared/components/Button";
 import { theme } from "../../../shared/theme";
 import { formatTimeAgo } from "../../../shared/utils/time";
 import TextArea from "../../../shared/components/TextArea";
+import * as emailApi from "../../../api/email";
+import { useNavigate } from "react-router-dom";
 
 const styles = {
   container: css({
@@ -82,20 +84,21 @@ const styles = {
 
 export default function EmailDetail({
   thread,
-  onSendReply,
-  onCreateTask,
+  onThreadUpdate,
 }: {
   thread?: EmailThread;
-  onSendReply: (reply: string) => void;
-  onCreateTask: () => void;
+  onThreadUpdate: (t: EmailThread) => void;
 }) {
   const [reply, setReply] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
+
   // keep reply in sync when switching emails
   useEffect(() => {
     setReply(thread?.suggestedReply || "");
   }, [thread]);
 
+  // auto scroll to latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -103,6 +106,36 @@ export default function EmailDetail({
   }, [thread?.messages]);
 
   if (!thread) return <div>Select email</div>;
+
+  // 🔥 API: send reply
+  const handleSendReply = async () => {
+    if (!reply.trim()) return;
+
+    try {
+      const res = await emailApi.sendReply(thread.id, reply);
+
+      if (res?.thread) {
+        onThreadUpdate(res.thread);
+      }
+
+      setReply("");
+    } catch (err) {
+      console.error("Failed to send reply", err);
+    }
+  };
+
+  // 🔥 API: suggest task + navigate
+  const handleCreateTask = async () => {
+    try {
+      const suggested = await emailApi.suggestTask(thread);
+
+      navigate("/tasks", {
+        state: { prefill: suggested },
+      });
+    } catch (err) {
+      console.error("Failed to suggest task", err);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -145,16 +178,9 @@ export default function EmailDetail({
         )}
 
         <div className={styles.actions}>
-          <Button
-            onClick={() => {
-              onSendReply(reply);
-              setReply(""); // clear after send
-            }}
-          >
-            Send Reply
-          </Button>
+          <Button onClick={handleSendReply}>Send Reply</Button>
 
-          <Button variant="secondary" onClick={onCreateTask}>
+          <Button variant="secondary" onClick={handleCreateTask}>
             Create Task
           </Button>
         </div>

@@ -100,8 +100,8 @@ const styles = {
   }),
 
   upToDate: css({
-    color: theme.colors.success
-  })
+    color: theme.colors.success,
+  }),
 };
 
 export default function Landing() {
@@ -157,12 +157,14 @@ export default function Landing() {
                   Done ({counts.done})
                 </div>
               )}
-              {counts.done === 0 && counts.inProgress === 0 && counts.open === 0 && (
-                <div className={styles.statRow}>
-                  <p className={styles.upToDate}>☑</p>
-                  Up to Date 
-                </div>
-              )}
+              {counts.done === 0 &&
+                counts.inProgress === 0 &&
+                counts.open === 0 && (
+                  <div className={styles.statRow}>
+                    <p className={styles.upToDate}>☑</p>
+                    Up to Date
+                  </div>
+                )}
             </div>
           </div>
 

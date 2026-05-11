@@ -1,60 +1,75 @@
 import { css } from "@emotion/css";
-import type { EmailThread } from "../types";
-import StatusDot from "../../../shared/components/StatusDot";
 import { theme } from "../../../shared/theme";
-import { formatTimeAgo } from "../../../shared/utils/time";
+import type { EmailThread } from "../types";
 
 const styles = {
   container: css({
-    width: 300,
+    width: 260,
     borderRight: `1px solid ${theme.colors.border}`,
-    padding: 10,
-    background: theme.colors.surface,
+    display: "flex",
+    flexDirection: "column",
+    overflowY: "auto",
   }),
 
-  card: css({
-    padding: 12,
-    borderRadius: 8,
-    border: `1px solid ${theme.colors.border}`,
-    marginBottom: 10,
+  item: css({
+    padding: "12px 14px",
     cursor: "pointer",
-    background: theme.colors.surface,
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+    borderBottom: `1px solid ${theme.colors.border}`,
+    transition: "background 0.15s ease",
+
     "&:hover": {
       background: theme.colors.surfaceSubtle,
     },
   }),
 
   selected: css({
-    background: theme.colors.accentSoft,
+    background: theme.colors.surface,
   }),
 
-  row: css({
+  subjectRow: css({
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 6,
-  }),
-
-  rightCol: css({
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    gap: 4,
+    alignItems: "center",
+    gap: 6,
   }),
 
   subject: css({
-    fontWeight: 600,
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.colors.textPrimary,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   }),
 
-  email: css({
+  preview: css({
     fontSize: 12,
     color: theme.colors.textSecondary,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   }),
 
-  time: css({
-    fontSize: 11,
-    color: theme.colors.textMuted,
+  statusDot: css({
+    width: 8,
+    height: 8,
+    borderRadius: "50%",
+    flexShrink: 0,
   }),
+
+  empty: css({
+    padding: 16,
+    fontSize: 13,
+    color: theme.colors.textSecondary,
+  }),
+};
+
+const statusColors = {
+  unread: "#ef4444", // red
+  read: "#f59e0b", // yellow
+  replied: "#22c55e", // green
 };
 
 export default function EmailInbox({
@@ -63,31 +78,46 @@ export default function EmailInbox({
   onSelect,
 }: {
   emails: EmailThread[];
-  selectedId?: number;
-  onSelect: (e: EmailThread) => void;
+  selectedId: number | null;
+  onSelect: (id: number) => void;
 }) {
+  if (!emails.length) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.empty}>No emails</div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
-      {emails.map((e) => (
-        <div
-          key={e.id}
-          onClick={() => onSelect(e)}
-          className={`${styles.card} ${
-            selectedId === e.id ? styles.selected : ""
-          }`}
-        >
-          <div className={styles.row}>
-            <div className={styles.subject}>{e.subject}</div>
+      {emails.map((email) => {
+        const isSelected = email.id === selectedId;
+        const firstMessage = email.messages[0];
 
-            <div className={styles.rightCol}>
-              <StatusDot status={e.status} />
-              <div className={styles.time}>{formatTimeAgo(e.updatedAt)}</div>
+        return (
+          <div
+            key={email.id}
+            onClick={() => onSelect(email.id)}
+            className={`${styles.item} ${isSelected ? styles.selected : ""}`}
+          >
+            {/* Subject + Status */}
+            <div className={styles.subjectRow}>
+              <div
+                className={styles.statusDot}
+                style={{
+                  background: statusColors[email.status],
+                }}
+              />
+
+              <div className={styles.subject}>{email.subject}</div>
             </div>
-          </div>
 
-          <div className={styles.email}>{e.from}</div>
-        </div>
-      ))}
+            {/* Preview */}
+            <div className={styles.preview}>{firstMessage?.content || ""}</div>
+          </div>
+        );
+      })}
     </div>
   );
 }
