@@ -6,6 +6,8 @@ import { mockEmails } from "./data/mockEmails";
 import type { EmailThread } from "./types";
 import { theme } from "../../shared/theme";
 import TopBar from "../../shared/components/TopBar";
+import type { Task } from "../tasks/types";
+import TaskPanel from "./components/TaskPanel";
 
 const styles = {
   container: css({
@@ -20,9 +22,33 @@ const styles = {
     flex: 1,
     overflow: "hidden",
   }),
+
+  menuButton: css({
+    cursor: "pointer",
+    fontSize: 18,
+    padding: "6px 10px",
+    borderRadius: 6,
+    color: theme.colors.textPrimary,
+
+    "&:hover": {
+      background: theme.colors.surfaceSubtle,
+    },
+  }),
+
+  badge: css({
+    marginLeft: 6,
+    fontSize: 11,
+    padding: "2px 6px",
+    borderRadius: 10,
+    background: theme.colors.primary,
+    color: "#fff",
+  }),
 };
 
 export default function EmailApp() {
+  // TODO: Temp Tasks placeholder
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [showTasks, setShowTasks] = useState(false);
 
   const [emails, setEmails] = useState<EmailThread[]>(mockEmails);
   const [selectedId, setSelectedId] = useState<number | undefined>(
@@ -40,7 +66,7 @@ export default function EmailApp() {
 
         return {
           ...email,
-          status: "replied", 
+          status: "replied",
           updatedAt: Date.now(),
           messages: [
             ...email.messages,
@@ -56,9 +82,40 @@ export default function EmailApp() {
     );
   };
 
+  const handleCreateTask = () => {
+    if (!selected?.extractedTask) return;
+
+    const newTask: Task = {
+      id: Date.now(),
+      title: selected.extractedTask,
+      status: "open",
+      createdAt: Date.now(),
+    };
+
+    setTasks((prev) => {
+      return [...prev, newTask];
+    });
+
+    console.log("Created task:", newTask);
+  };
+
   return (
     <div className={styles.container}>
-      <TopBar title="Email Secretary" showBack />
+      <TopBar
+        title="Email Secretary"
+        showBack
+        rightAction={
+          <div
+            className={styles.menuButton}
+            onClick={() => setShowTasks((prev) => !prev)}
+          >
+            ☰
+            {tasks.length > 0 && (
+              <span className={styles.badge}>{tasks.length}</span>
+            )}
+          </div>
+        }
+      />
 
       <div className={styles.content}>
         <EmailInbox
@@ -66,8 +123,7 @@ export default function EmailApp() {
           selectedId={selectedId}
           onSelect={(e) => {
             setSelectedId(e.id);
-          
-            // mark as read
+
             setEmails((prev) =>
               prev.map((email) =>
                 email.id === e.id && email.status === "unread"
@@ -77,7 +133,18 @@ export default function EmailApp() {
             );
           }}
         />
-        <EmailDetail thread={selected} onSendReply={handleSendReply} />
+
+        <EmailDetail
+          thread={selected}
+          onSendReply={handleSendReply}
+          onCreateTask={handleCreateTask}
+        />
+
+        <TaskPanel
+          tasks={tasks}
+          isOpen={showTasks}
+          onClose={() => setShowTasks(false)}
+        />
       </div>
     </div>
   );

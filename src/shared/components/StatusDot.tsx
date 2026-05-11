@@ -18,7 +18,5 @@ const colors = {
 };
 
 export default function StatusDot({ status }: { status: Status }) {
-  return (
-    <div className={`${styles.base} ${colors[status]}`} />
-  );
+  return <div className={`${styles.base} ${colors[status]}`} />;
 }

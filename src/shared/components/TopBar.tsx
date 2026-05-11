@@ -40,9 +40,11 @@ const styles = {
 export default function TopBar({
   title,
   showBack = false,
+  rightAction,
 }: {
   title: string;
   showBack?: boolean;
+  rightAction?: React.ReactNode;
 }) {
   const navigate = useNavigate();
 
@@ -59,6 +61,8 @@ export default function TopBar({
 
         <div className={styles.title}>{title}</div>
       </div>
+
+      <div>{rightAction}</div>
     </div>
   );
 }

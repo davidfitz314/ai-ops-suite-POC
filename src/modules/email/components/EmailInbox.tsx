@@ -80,7 +80,7 @@ export default function EmailInbox({
             <div className={styles.subject}>{e.subject}</div>
 
             <div className={styles.rightCol}>
-            <StatusDot status={e.status} />
+              <StatusDot status={e.status} />
               <div className={styles.time}>{formatTimeAgo(e.updatedAt)}</div>
             </div>
           </div>

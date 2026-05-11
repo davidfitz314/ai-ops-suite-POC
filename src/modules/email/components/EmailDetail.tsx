@@ -83,9 +83,11 @@ const styles = {
 export default function EmailDetail({
   thread,
   onSendReply,
+  onCreateTask,
 }: {
   thread?: EmailThread;
   onSendReply: (reply: string) => void;
+  onCreateTask: () => void;
 }) {
   const [reply, setReply] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -130,10 +132,10 @@ export default function EmailDetail({
         <strong>Suggested Reply</strong>
 
         <TextArea
-  value={reply}
-  onChange={(e) => setReply(e.target.value)}
-  placeholder="Write your reply..."
-/>
+          value={reply}
+          onChange={(e) => setReply(e.target.value)}
+          placeholder="Write your reply..."
+        />
 
         {thread.extractedTask && (
           <div style={{ marginTop: 10 }}>
@@ -152,7 +154,9 @@ export default function EmailDetail({
             Send Reply
           </Button>
 
-          <Button variant="secondary">Create Task</Button>
+          <Button variant="secondary" onClick={onCreateTask}>
+            Create Task
+          </Button>
         </div>
       </div>
     </div>

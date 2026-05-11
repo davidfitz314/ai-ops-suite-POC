@@ -106,8 +106,14 @@ export default function Landing() {
               Auto-read, reply, and create tasks from emails
             </div>
           </div>
+
+          <div className={styles.card} onClick={() => navigate("/tasks")}>
+        📋 Task Manager
+      </div>
         </div>
       </div>
+
+      
     </div>
   );
 }
