@@ -6,7 +6,6 @@ import { mockEmails } from "./data/mockEmails";
 import type { EmailThread } from "./types";
 import { theme } from "../../shared/theme";
 import TopBar from "../../shared/components/TopBar";
-import type { Task } from "../tasks/types";
 import TaskPanel from "./components/TaskPanel";
 import { useTasks } from "../../shared/context/TaskContext";
 
