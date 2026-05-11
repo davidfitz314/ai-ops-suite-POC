@@ -48,7 +48,7 @@ const styles = {
 
 export default function EmailApp() {
   const navigate = useNavigate();
-  const { tasks, addTask } = useTasks();
+  const { tasks } = useTasks();
   const [showTasks, setShowTasks] = useState(false);
 
   const [emails, setEmails] = useState<EmailThread[]>(mockEmails);

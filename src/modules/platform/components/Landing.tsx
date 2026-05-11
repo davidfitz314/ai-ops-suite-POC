@@ -98,6 +98,10 @@ const styles = {
     fontSize: 12,
     color: theme.colors.textSecondary,
   }),
+
+  upToDate: css({
+    color: theme.colors.success
+  })
 };
 
 export default function Landing() {
@@ -151,6 +155,12 @@ export default function Landing() {
                 <div className={styles.statRow}>
                   <StatusDot status="done" />
                   Done ({counts.done})
+                </div>
+              )}
+              {counts.done === 0 && counts.inProgress === 0 && counts.open === 0 && (
+                <div className={styles.statRow}>
+                  <p className={styles.upToDate}>☑</p>
+                  Up to Date 
                 </div>
               )}
             </div>
