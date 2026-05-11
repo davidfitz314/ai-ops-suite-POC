@@ -4,6 +4,7 @@ import type { EmailThread } from "../types";
 import Button from "../../../shared/components/Button";
 import { theme } from "../../../shared/theme";
 import { formatTimeAgo } from "../../../shared/utils/time";
+import TextArea from "../../../shared/components/TextArea";
 
 const styles = {
   container: css({
@@ -128,11 +129,11 @@ export default function EmailDetail({
       <div className={styles.section}>
         <strong>Suggested Reply</strong>
 
-        <textarea
-          className={styles.textarea}
-          value={reply}
-          onChange={(e) => setReply(e.target.value)}
-        />
+        <TextArea
+  value={reply}
+  onChange={(e) => setReply(e.target.value)}
+  placeholder="Write your reply..."
+/>
 
         {thread.extractedTask && (
           <div style={{ marginTop: 10 }}>
