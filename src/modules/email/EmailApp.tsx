@@ -40,6 +40,7 @@ export default function EmailApp() {
 
         return {
           ...email,
+          status: "replied", 
           updatedAt: Date.now(),
           messages: [
             ...email.messages,
@@ -63,7 +64,18 @@ export default function EmailApp() {
         <EmailInbox
           emails={emails}
           selectedId={selectedId}
-          onSelect={(e) => setSelectedId(e.id)}
+          onSelect={(e) => {
+            setSelectedId(e.id);
+          
+            // mark as read
+            setEmails((prev) =>
+              prev.map((email) =>
+                email.id === e.id && email.status === "unread"
+                  ? { ...email, status: "read" }
+                  : email
+              )
+            );
+          }}
         />
         <EmailDetail thread={selected} onSendReply={handleSendReply} />
       </div>

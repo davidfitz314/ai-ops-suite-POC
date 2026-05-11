@@ -1,3 +1,5 @@
+export type EmailStatus = "unread" | "read" | "replied";
+
 export type EmailMessage = {
   id: number;
   direction: "inbound" | "outbound";
@@ -9,7 +11,7 @@ export type EmailThread = {
   id: number;
   subject: string;
   from: string;
-  status: "new" | "processed" | "archived";
+  status: EmailStatus;
   messages: EmailMessage[];
   updatedAt: number;
 

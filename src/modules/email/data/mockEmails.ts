@@ -8,7 +8,7 @@ export const mockEmails: EmailThread[] = [
     id: 1,
     subject: "AC not working",
     from: "john@email.com",
-    status: "new",
+    status: "unread",
     updatedAt: minutes(5),
     messages: [
       {
@@ -26,7 +26,7 @@ export const mockEmails: EmailThread[] = [
     id: 2,
     subject: "Billing issue",
     from: "emma@email.com",
-    status: "processed",
+    status: "replied",
     updatedAt: minutes(30),
     messages: [
       {
@@ -44,5 +44,23 @@ export const mockEmails: EmailThread[] = [
     ],
     suggestedReply:
       "Thanks for flagging this. We’re reviewing your account and will correct any issues.",
+  },
+  {
+    id: 3,
+    subject: "my stuff working",
+    from: "john@email.com",
+    status: "read",
+    updatedAt: minutes(25),
+    messages: [
+      {
+        id: 1,
+        direction: "inbound",
+        content: "My AC stopped last night.",
+        timestamp: minutes(25),
+      },
+    ],
+    suggestedReply:
+      "Thanks for reaching out. We've received your request and will follow up shortly.",
+    extractedTask: "Schedule AC repair technician",
   },
 ];

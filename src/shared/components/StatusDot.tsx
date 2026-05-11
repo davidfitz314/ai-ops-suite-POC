@@ -1,20 +1,24 @@
 import { css } from "@emotion/css";
 import { theme } from "../theme";
 
-type Status = "open" | "in_progress" | "done";
+type Status = "unread" | "read" | "replied";
 
-const base = css({
-  width: 10,
-  height: 10,
-  borderRadius: "50%",
-});
+const styles = {
+  base: css({
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
+  }),
+};
 
 const colors = {
-  open: css({ background: theme.colors.danger }),
-  in_progress: css({ background: theme.colors.warning }),
-  done: css({ background: theme.colors.success }),
+  unread: css({ background: theme.colors.danger }),
+  read: css({ background: theme.colors.warning }),
+  replied: css({ background: theme.colors.success }),
 };
 
 export default function StatusDot({ status }: { status: Status }) {
-  return <div className={`${base} ${colors[status]}`} />;
+  return (
+    <div className={`${styles.base} ${colors[status]}`} />
+  );
 }
