@@ -1,86 +1,71 @@
 import { css } from "@emotion/css";
-import type { Task } from "../types";
+import { useTasks } from "../../../shared/context/TaskContext";
 import { theme } from "../../../shared/theme";
+import StatusDot from "../../../shared/components/StatusDot";
 
 const styles = {
   container: css({
-    padding: 20,
+    padding: 12,
     display: "flex",
     flexDirection: "column",
-    gap: 12,
-  }),
-
-  task: css({
-    padding: 12,
-    borderRadius: 8,
-    border: `1px solid ${theme.colors.border}`,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    background: theme.colors.surface,
-  }),
-
-  title: css({
-    fontSize: 14,
-  }),
-
-  actions: css({
-    display: "flex",
     gap: 8,
   }),
 
-  button: css({
+  task: css({
+    padding: 10,
+    borderRadius: 8,
+    border: `1px solid ${theme.colors.border}`,
+    background: theme.colors.surface,
     cursor: "pointer",
-    fontSize: 12,
-    padding: "4px 8px",
-    borderRadius: 6,
+    transition: "background 0.15s ease",
+
     "&:hover": {
       background: theme.colors.surfaceSubtle,
     },
   }),
+
+  selected: css({
+    background: theme.colors.accentSoft,
+  }),
+
+  title: css({
+    fontSize: 13,
+    color: theme.colors.textPrimary,
+  }),
+
+  status: css({
+    fontSize: 11,
+    color: theme.colors.textSecondary,
+  }),
 };
 
 export default function TaskList({
-  tasks,
-  setTasks,
+  selectedId,
+  onSelect,
 }: {
-  tasks: Task[];
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  selectedId?: number;
+  onSelect: (id: number) => void;
 }) {
-  const cycleStatus = (task: Task) => {
-    const next = {
-      open: "in_progress",
-      in_progress: "done",
-      done: "closed",
-      closed: "open",
-    } as const;
-
-    setTasks((prev) =>
-      prev.map((t) => (t.id === task.id ? { ...t, status: next[t.status] } : t))
-    );
-  };
-
-  const deleteTask = (id: number) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-  };
+  const { tasks } = useTasks();
 
   return (
     <div className={styles.container}>
+      {tasks.length === 0 && <div>No tasks yet</div>}
+
       {tasks.map((t) => (
-        <div key={t.id} className={styles.task}>
-          <div className={styles.title}>
-            {t.title} ({t.status})
+        <div
+          key={t.id}
+          onClick={() => onSelect(t.id)}
+          className={`${styles.task} ${
+            selectedId === t.id ? styles.selected : ""
+          }`}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <StatusDot status={t.status} />
+            <div className={styles.title}>{t.title}</div>
           </div>
 
-          <div className={styles.actions}>
-            <div className={styles.button} onClick={() => cycleStatus(t)}>
-              Cycle
-            </div>
-
-            <div className={styles.button} onClick={() => deleteTask(t.id)}>
-              Delete
-            </div>
-          </div>
+          <div className={styles.status}>{t.status}</div>
         </div>
       ))}
     </div>

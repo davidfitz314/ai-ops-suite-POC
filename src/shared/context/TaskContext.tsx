@@ -10,11 +10,7 @@ type TaskContextType = {
 
 const TaskContext = createContext<TaskContextType | null>(null);
 
-export function TaskProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const addTask = (task: Task) => {
@@ -22,9 +18,7 @@ export function TaskProvider({
   };
 
   const updateTask = (updated: Task) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === updated.id ? updated : t))
-    );
+    setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
   };
 
   const deleteTask = (id: number) => {
@@ -32,9 +26,7 @@ export function TaskProvider({
   };
 
   return (
-    <TaskContext.Provider
-      value={{ tasks, addTask, updateTask, deleteTask }}
-    >
+    <TaskContext.Provider value={{ tasks, addTask, updateTask, deleteTask }}>
       {children}
     </TaskContext.Provider>
   );

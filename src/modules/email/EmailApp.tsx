@@ -8,6 +8,7 @@ import { theme } from "../../shared/theme";
 import TopBar from "../../shared/components/TopBar";
 import type { Task } from "../tasks/types";
 import TaskPanel from "./components/TaskPanel";
+import { useTasks } from "../../shared/context/TaskContext";
 
 const styles = {
   container: css({
@@ -46,8 +47,7 @@ const styles = {
 };
 
 export default function EmailApp() {
-  // TODO: Temp Tasks placeholder
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, addTask } = useTasks();
   const [showTasks, setShowTasks] = useState(false);
 
   const [emails, setEmails] = useState<EmailThread[]>(mockEmails);
@@ -85,18 +85,12 @@ export default function EmailApp() {
   const handleCreateTask = () => {
     if (!selected?.extractedTask) return;
 
-    const newTask: Task = {
+    addTask({
       id: Date.now(),
       title: selected.extractedTask,
       status: "open",
       createdAt: Date.now(),
-    };
-
-    setTasks((prev) => {
-      return [...prev, newTask];
     });
-
-    console.log("Created task:", newTask);
   };
 
   return (

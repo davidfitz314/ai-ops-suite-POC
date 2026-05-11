@@ -108,12 +108,10 @@ export default function Landing() {
           </div>
 
           <div className={styles.card} onClick={() => navigate("/tasks")}>
-        📋 Task Manager
-      </div>
+            📋 Task Manager
+          </div>
         </div>
       </div>
-
-      
     </div>
   );
 }
