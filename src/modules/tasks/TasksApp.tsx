@@ -7,6 +7,7 @@ import { useTasks } from "../../shared/context/TaskContext";
 import { theme } from "../../shared/theme";
 import type { Task } from "./types";
 import { useLocation, useNavigate } from "react-router-dom";
+import ErrorBoundary from "../../shared/components/ErrorBoundary";
 
 const styles = {
   container: css({
@@ -68,15 +69,18 @@ export default function TasksApp() {
 
       <div className={styles.content}>
         <div className={styles.sidebar}>
-          <TaskList
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            onCreateTask={handleCreateTask}
-            prefill={prefill}
-          />
+          <ErrorBoundary fallback={<div>Task list failed to load</div>}>
+            <TaskList
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              onCreateTask={handleCreateTask}
+              prefill={prefill}
+            />
+          </ErrorBoundary>
         </div>
-
-        <TaskDetail task={selected} />
+        <ErrorBoundary fallback={<div>Task detail failed to load</div>}>
+          <TaskDetail task={selected} />
+        </ErrorBoundary>
       </div>
     </div>
   );

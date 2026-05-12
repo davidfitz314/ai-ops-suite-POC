@@ -26,8 +26,12 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateTask = async (task: Task) => {
-    await taskApi.updateTask(task);
-    setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
+    const updated = await taskApi.updateTask(task.id, {
+      title: task.title,
+      status: task.status,
+    });
+
+    setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
   };
 
   const deleteTask = async (id: number) => {

@@ -1,75 +1,71 @@
 import type { Task } from "../modules/tasks/types";
-import { mockFetch } from "./client";
+import { mockFetch, apiFetch } from "./client";
+import { USE_BACKEND } from "./config";
 
-let tasks: Task[] = [];
-
-let tasksFull: Task[] = [
-  // 🔴 OPEN
+let tasks: Task[] = [
   {
     id: 1,
-    title: "Follow up on AC repair request",
+    title: "Mock Task",
     status: "open",
-    createdAt: Date.now() - 1000000,
-  },
-  {
-    id: 2,
-    title: "Review billing discrepancy email",
-    status: "open",
-    createdAt: Date.now() - 2000000,
-  },
-
-  // 🟡 IN PROGRESS
-  {
-    id: 3,
-    title: "Investigate HVAC system issue",
-    status: "inProgress",
-    createdAt: Date.now() - 3000000,
-  },
-  {
-    id: 4,
-    title: "Contact customer about duplicate charge",
-    status: "inProgress",
-    createdAt: Date.now() - 4000000,
-  },
-
-  // 🟢 DONE
-  {
-    id: 5,
-    title: "Resolved login access issue",
-    status: "done",
-    createdAt: Date.now() - 5000000,
-  },
-  {
-    id: 6,
-    title: "Updated customer billing info",
-    status: "done",
-    createdAt: Date.now() - 6000000,
-  },
-
-  // ⚫ CLOSED
-  {
-    id: 7,
-    title: "Closed ticket for resolved outage",
-    status: "closed",
-    createdAt: Date.now() - 7000000,
+    createdAt: Date.now(),
   },
 ];
 
+// 🔥 GET
 export async function getTasks(): Promise<Task[]> {
+  if (USE_BACKEND) {
+    return apiFetch("/tasks");
+  }
+
   return mockFetch(tasks);
 }
 
-export async function createTask(task: Task): Promise<Task> {
-  tasks.push(task);
-  return mockFetch(task);
+// 🔥 CREATE
+export async function createTask(task: Partial<Task>): Promise<Task> {
+  if (USE_BACKEND) {
+    return apiFetch("/tasks", {
+      method: "POST",
+      body: JSON.stringify(task),
+    });
+  }
+
+  const newTask: Task = {
+    id: Date.now(),
+    title: task.title || "",
+    status: task.status || "open",
+    createdAt: Date.now(),
+  };
+
+  tasks.push(newTask);
+  return mockFetch(newTask);
 }
 
-export async function updateTask(task: Task): Promise<Task> {
-  tasks = tasks.map((t) => (t.id === task.id ? task : t));
-  return mockFetch(task);
+// 🔥 UPDATE
+export async function updateTask(
+  id: number,
+  updates: Partial<Task>
+): Promise<Task> {
+  if (USE_BACKEND) {
+    return apiFetch(`/tasks/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(updates),
+    });
+  }
+
+  tasks = tasks.map((t) => (t.id === id ? { ...t, ...updates } : t));
+
+  return mockFetch(tasks.find((t) => t.id === id)!);
 }
 
+// 🔥 DELETE
 export async function deleteTask(id: number): Promise<void> {
+  if (USE_BACKEND) {
+    await apiFetch(`/tasks/${id}`, {
+      method: "DELETE",
+    });
+    return;
+  }
+
   tasks = tasks.filter((t) => t.id !== id);
   return mockFetch(undefined);
 }

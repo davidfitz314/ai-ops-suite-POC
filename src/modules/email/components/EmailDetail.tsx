@@ -112,11 +112,9 @@ export default function EmailDetail({
     if (!reply.trim()) return;
 
     try {
-      const res = await emailApi.sendReply(thread.id, reply);
+      const updatedThread = await emailApi.sendReply(thread.id, reply);
 
-      if (res?.thread) {
-        onThreadUpdate(res.thread);
-      }
+      onThreadUpdate(updatedThread);
 
       setReply("");
     } catch (err) {
@@ -135,6 +133,7 @@ export default function EmailDetail({
     } catch (err) {
       console.error("Failed to suggest task", err);
     }
+    console.log("create task clicked");
   };
 
   return (

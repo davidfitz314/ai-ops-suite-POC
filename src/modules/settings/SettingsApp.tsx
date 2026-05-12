@@ -2,6 +2,7 @@ import { css } from "@emotion/css";
 import TopBar from "../../shared/components/TopBar";
 import { theme } from "../../shared/theme";
 import EmailSettings from "./components/EmailSettings";
+import ErrorBoundary from "../../shared/components/ErrorBoundary";
 
 const styles = {
   container: css({
@@ -21,7 +22,9 @@ export default function SettingsApp() {
     <div className={styles.container}>
       <TopBar title="Settings" showBack />
       <div className={styles.content}>
-        <EmailSettings />
+        <ErrorBoundary fallback={<div>Settings to load</div>}>
+          <EmailSettings />
+        </ErrorBoundary>
       </div>
     </div>
   );

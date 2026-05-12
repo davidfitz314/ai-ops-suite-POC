@@ -67,9 +67,9 @@ const styles = {
 };
 
 const statusColors = {
-  unread: "#ef4444", // red
-  read: "#f59e0b", // yellow
-  replied: "#22c55e", // green
+  unread: "#ef4444",
+  read: "#f59e0b",
+  replied: "#22c55e",
 };
 
 export default function EmailInbox({
@@ -93,7 +93,12 @@ export default function EmailInbox({
     <div className={styles.container}>
       {emails.map((email) => {
         const isSelected = email.id === selectedId;
-        const firstMessage = email.messages[0];
+
+        // 🔥 SAFE preview extraction
+        const preview =
+          typeof email.messages?.[0] === "string"
+            ? email.messages[0] // legacy backend support
+            : email.messages?.[0]?.content || "";
 
         return (
           <div
@@ -114,7 +119,7 @@ export default function EmailInbox({
             </div>
 
             {/* Preview */}
-            <div className={styles.preview}>{firstMessage?.content || ""}</div>
+            <div className={styles.preview}>{preview}</div>
           </div>
         );
       })}

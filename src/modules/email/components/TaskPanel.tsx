@@ -89,7 +89,7 @@ const styles = {
 
   statusColors: {
     open: css({ color: theme.colors.danger }),
-    in_progress: css({ color: theme.colors.warning }),
+    inProgress: css({ color: theme.colors.warning }),
     done: css({ color: theme.colors.success }),
     closed: css({ color: theme.colors.textMuted }),
   },

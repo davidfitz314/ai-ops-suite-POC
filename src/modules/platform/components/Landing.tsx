@@ -4,6 +4,7 @@ import { theme } from "../../../shared/theme";
 import TopBar from "../../../shared/components/TopBar";
 import { useTasks } from "../../../shared/context/TaskContext";
 import StatusDot from "../../../shared/components/StatusDot";
+import ErrorBoundary from "../../../shared/components/ErrorBoundary";
 
 const styles = {
   container: css({
@@ -118,61 +119,62 @@ export default function Landing() {
     <div className={styles.container}>
       {/* Top bar */}
       <TopBar title="Kawika Tools" />
-
-      {/* Content */}
-      <div className={styles.content}>
-        <div className={styles.header}>AI Ops Suite</div>
-        <div className={styles.sub}>
-          Modular tools to automate business workflows
-        </div>
-
-        <div className={styles.grid}>
-          <div className={styles.card} onClick={() => navigate("/email")}>
-            <div className={styles.icon}>📧</div>
-            <div className={styles.title}>Email Secretary</div>
-            <div className={styles.desc}>
-              Auto-read, reply, and create tasks from emails
-            </div>
+      <ErrorBoundary fallback={<div>Platform failed to load</div>}>
+        {/* Content */}
+        <div className={styles.content}>
+          <div className={styles.header}>AI Ops Suite</div>
+          <div className={styles.sub}>
+            Modular tools to automate business workflows
           </div>
 
-          <div className={styles.card} onClick={() => navigate("/tasks")}>
-            <div>🧾 Task Manager</div>
+          <div className={styles.grid}>
+            <div className={styles.card} onClick={() => navigate("/email")}>
+              <div className={styles.icon}>📧</div>
+              <div className={styles.title}>Email Secretary</div>
+              <div className={styles.desc}>
+                Auto-read, reply, and create tasks from emails
+              </div>
+            </div>
 
-            <div className={styles.taskStats}>
-              {counts.open > 0 && (
-                <div className={styles.statRow}>
-                  <StatusDot status="open" />
-                  Open ({counts.open})
-                </div>
-              )}
-              {counts.inProgress > 0 && (
-                <div className={styles.statRow}>
-                  <StatusDot status="inProgress" />
-                  In Progress ({counts.inProgress})
-                </div>
-              )}
-              {counts.done > 0 && (
-                <div className={styles.statRow}>
-                  <StatusDot status="done" />
-                  Done ({counts.done})
-                </div>
-              )}
-              {counts.done === 0 &&
-                counts.inProgress === 0 &&
-                counts.open === 0 && (
+            <div className={styles.card} onClick={() => navigate("/tasks")}>
+              <div>🧾 Task Manager</div>
+
+              <div className={styles.taskStats}>
+                {counts.open > 0 && (
                   <div className={styles.statRow}>
-                    <p className={styles.upToDate}>☑</p>
-                    Up to Date
+                    <StatusDot status="open" />
+                    Open ({counts.open})
                   </div>
                 )}
+                {counts.inProgress > 0 && (
+                  <div className={styles.statRow}>
+                    <StatusDot status="inProgress" />
+                    In Progress ({counts.inProgress})
+                  </div>
+                )}
+                {counts.done > 0 && (
+                  <div className={styles.statRow}>
+                    <StatusDot status="done" />
+                    Done ({counts.done})
+                  </div>
+                )}
+                {counts.done === 0 &&
+                  counts.inProgress === 0 &&
+                  counts.open === 0 && (
+                    <div className={styles.statRow}>
+                      <p className={styles.upToDate}>☑</p>
+                      Up to Date
+                    </div>
+                  )}
+              </div>
+            </div>
+
+            <div className={styles.card} onClick={() => navigate("/settings")}>
+              ⚙️ Settings
             </div>
           </div>
-
-          <div className={styles.card} onClick={() => navigate("/settings")}>
-            ⚙️ Settings
-          </div>
         </div>
-      </div>
+      </ErrorBoundary>
     </div>
   );
 }

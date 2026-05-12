@@ -1,88 +1,83 @@
-import { mockFetch } from "./client";
+import { mockFetch, apiFetch } from "./client";
+import { USE_BACKEND } from "./config";
 import type { EmailThread } from "../modules/email/types";
 
-let threads: EmailThread[] = [
-  {
-    id: 1,
-    subject: "AC is broken",
-    from: "customer@email.com",
-    status: "unread",
-    extractedTask: "Investigate AC issue",
-    suggestedReply: "We're looking into your AC issue.",
-    messages: [
-      {
-        id: 1,
-        content: "My AC stopped working last night",
-        direction: "inbound",
-        timestamp: Date.now() - 100000,
-      },
-    ],
-  },
-  {
-    id: 2,
-    subject: "Billing issue",
-    from: "billing@email.com",
-    status: "read",
-    messages: [
-      {
-        id: 1,
-        content: "I was charged twice this month.",
-        direction: "inbound",
-        timestamp: Date.now() - 500000,
-      },
-    ],
-  },
-  {
-    id: 3,
-    subject: "Follow up",
-    from: "user@email.com",
-    status: "replied",
-    messages: [
-      {
-        id: 1,
-        content: "Thanks, everything is working now!",
-        direction: "inbound",
-        timestamp: Date.now() - 800000,
-      },
-    ],
-  },
-];
-
+// 🔥 GET
 export async function getEmails(): Promise<EmailThread[]> {
-  return mockFetch(threads);
-}
+  if (USE_BACKEND) {
+    const data = await apiFetch<any[]>("/emails");
 
-export async function sendReply(id: number, message: string) {
-  const thread = threads.find((t) => t.id === id);
-  if (!thread) return null;
-
-  const newMessage = {
-    id: Date.now(),
-    content: message,
-    direction: "outbound" as const,
-    timestamp: Date.now(),
-  };
-
-  thread.messages.push(newMessage);
-  thread.status = "replied";
-
-  return mockFetch({
-    thread,
-    message: newMessage,
-  });
-}
-
-export async function markAsRead(id: number) {
-  const thread = threads.find((t) => t.id === id);
-  if (!thread) return;
-
-  if (thread.status === "unread") {
-    thread.status = "read";
+    // 🔥 transform backend → frontend format
+    return data.map((e) => ({
+      id: e.id,
+      subject: e.subject,
+      from: e.fromEmail,
+      status: e.status,
+      extractedTask: e.extractedTask,
+      suggestedReply: e.suggestedReply,
+      messages: e.messages.map((m: any) => ({
+        id: m.id,
+        content: m.content,
+        direction: m.direction,
+        timestamp: m.timestamp,
+      })),
+    }));
   }
 
-  return mockFetch({ success: true });
+  // fallback mock (optional)
+  return mockFetch([]);
 }
 
+// 🔥 REPLY
+export async function sendReply(
+  id: number,
+  message: string
+): Promise<EmailThread> {
+  const res = await apiFetch<any>(`/emails/${id}/reply`, {
+    method: "POST",
+    body: JSON.stringify({ message }),
+  });
+
+  return {
+    id: res.id,
+    subject: res.subject,
+    from: res.fromEmail, // 🔥 map name
+    status: res.status,
+    extractedTask: res.extractedTask,
+    suggestedReply: res.suggestedReply,
+    messages: res.messages.map((m: any) => ({
+      id: m.id,
+      content: m.content,
+      direction: m.direction,
+      timestamp: m.timestamp,
+    })),
+  };
+}
+
+// 🔥 MARK READ
+export async function markAsRead(id: number): Promise<void> {
+  if (USE_BACKEND) {
+    await apiFetch(`/emails/${id}/read`, {
+      method: "POST",
+    });
+    return;
+  }
+}
+
+// 🔥 SUGGEST TASK
 export async function suggestTask(thread: EmailThread): Promise<string> {
-  return mockFetch(thread.extractedTask || `Follow up: ${thread.subject}`);
+  const res = await apiFetch<{ suggestion: string }>("/emails/suggest-task", {
+    method: "POST",
+    body: JSON.stringify({
+      id: thread.id,
+      subject: thread.subject,
+      fromEmail: thread.from,
+      status: thread.status,
+      messages: thread.messages, // 🔥 FIX: send full objects
+      extractedTask: thread.extractedTask ?? null,
+      suggestedReply: thread.suggestedReply ?? null,
+    }),
+  });
+
+  return res.suggestion;
 }

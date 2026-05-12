@@ -6,6 +6,9 @@ import EmailInbox from "./components/EmailInbox";
 import EmailDetail from "./components/EmailDetail";
 import * as emailApi from "../../api/email";
 import type { EmailThread } from "./types";
+import ErrorBoundary from "../../shared/components/ErrorBoundary";
+import TaskPanel from "./components/TaskPanel";
+import { useTasks } from "../../shared/context/TaskContext";
 
 const styles = {
   container: css({
@@ -25,6 +28,10 @@ const styles = {
 export default function EmailApp() {
   const [threads, setThreads] = useState<EmailThread[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [showTasks, setShowTasks] = useState<boolean>(false);
+
+  const { tasks } = useTasks();
+
   const updateThread = (updated: EmailThread) => {
     setThreads((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
   };
@@ -60,16 +67,47 @@ export default function EmailApp() {
 
   return (
     <div className={styles.container}>
-      <TopBar title="Email" showBack />
+      <TopBar
+        title="Email"
+        showBack
+        rightAction={
+          <div
+            style={{ cursor: "pointer", fontSize: 18 }}
+            onClick={() => setShowTasks((p) => !p)}
+          >
+            ☰
+          </div>
+        }
+      />
 
       <div className={styles.content}>
-        <EmailInbox
-          emails={threads}
-          selectedId={selectedId}
-          onSelect={handleSelect}
-        />
+        <ErrorBoundary
+          fallback={<div style={{ padding: 20 }}>Inbox crashed</div>}
+        >
+          <EmailInbox
+            emails={threads}
+            selectedId={selectedId}
+            onSelect={handleSelect}
+          />
+        </ErrorBoundary>
 
-        <EmailDetail thread={selected} onThreadUpdate={updateThread} />
+        <ErrorBoundary
+          fallback={<div style={{ padding: 20 }}>Detail crashed</div>}
+        >
+          <EmailDetail thread={selected} onThreadUpdate={updateThread} />
+        </ErrorBoundary>
+
+        <ErrorBoundary
+          fallback={
+            <div style={{ padding: 20 }}> Task List failed to load</div>
+          }
+        >
+          <TaskPanel
+            tasks={tasks} // from context or state
+            isOpen={showTasks}
+            onClose={() => setShowTasks(false)}
+          />
+        </ErrorBoundary>
       </div>
     </div>
   );
