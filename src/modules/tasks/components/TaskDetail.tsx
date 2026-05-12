@@ -6,6 +6,7 @@ import { theme } from "../../../shared/theme";
 import Button from "../../../shared/components/Button";
 import StatusDot from "../../../shared/components/StatusDot";
 import Input from "../../../shared/components/Input";
+import SaveIcon from "../../../shared/icons/SaveIcon";
 
 const styles = {
   container: css({
@@ -30,49 +31,80 @@ const styles = {
     display: "flex",
     gap: 10,
   }),
+
+  // 🔥 NEW
+  titleRow: css({
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+  }),
+
+  saveIcon: css({
+    position: "absolute",
+    right: 8,
+    cursor: "pointer",
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+
+    "&:hover": {
+      color: theme.colors.textPrimary,
+    },
+  }),
 };
 
-// TODO: Add global "live save" UX pattern:
-// - show "Saving..." when updating
-// - show "Saved" confirmation
-// - debounce rapid updates (typing)
-// - handle error states when backend is introduced
+// TODO: Add global "live save" UX pattern
 export default function TaskDetail({ task }: { task?: Task }) {
   const { updateTask, deleteTask } = useTasks();
+
   const [title, setTitle] = useState("");
+  const [dirty, setDirty] = useState(false); // 🔥 NEW
 
   useEffect(() => {
     setTitle(task?.title || "");
+    setDirty(false); // reset when switching tasks
   }, [task]);
 
   if (!task) return <div>Select a task</div>;
 
   const setStatus = (status: Task["status"]) => {
-    // TODO: Add visual feedback for status update (e.g. spinner or flash)
-    // Also consider optimistic UI vs confirmed update if backend is added later
-
     updateTask({
       ...task,
       status,
     });
   };
 
+  // 🔥 NEW save handler
+  const handleSaveTitle = () => {
+    if (!dirty) return;
+
+    updateTask({
+      ...task,
+      title,
+    });
+
+    setDirty(false);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.title}>Task</div>
 
-      <Input
-        value={title}
-        onChange={(e) => {
-          const newTitle = e.target.value;
-          setTitle(newTitle);
+      {/* 🔥 UPDATED INPUT ROW */}
+      <div className={styles.titleRow}>
+        <Input
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            setDirty(true); // mark as changed
+          }}
+        />
 
-          updateTask({
-            ...task,
-            title: newTitle,
-          });
-        }}
-      />
+        {dirty && (
+          <div className={styles.saveIcon} onClick={handleSaveTitle}>
+          <SaveIcon />
+        </div>
+        )}
+      </div>
 
       <div
         style={{
