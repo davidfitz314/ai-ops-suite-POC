@@ -3,11 +3,14 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import ErrorBoundary from "./shared/components/ErrorBoundary";
+import { SettingsProvider } from "./shared/context/SettingsContext";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <SettingsProvider>
+        <App />
+      </SettingsProvider>
     </ErrorBoundary>
   </StrictMode>
 );

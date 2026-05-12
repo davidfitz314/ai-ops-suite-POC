@@ -101,8 +101,8 @@ export default function TaskDetail({ task }: { task?: Task }) {
 
         {dirty && (
           <div className={styles.saveIcon} onClick={handleSaveTitle}>
-          <SaveIcon />
-        </div>
+            <SaveIcon />
+          </div>
         )}
       </div>
 

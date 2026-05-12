@@ -61,7 +61,7 @@ export default function Tooltip({
   position = "top",
   children,
 }: {
-  text: string;
+  text: React.ReactNode | string;
   position?: Position;
   children: React.ReactNode;
 }) {

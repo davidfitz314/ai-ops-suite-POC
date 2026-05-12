@@ -7,6 +7,8 @@ import { formatTimeAgo } from "../../../shared/utils/time";
 import TextArea from "../../../shared/components/TextArea";
 import * as emailApi from "../../../api/email";
 import { useNavigate } from "react-router-dom";
+import { useSettings } from "../../../shared/context/SettingsContext";
+import Tooltip from "../../../shared/components/ToolTip";
 
 const styles = {
   container: css({
@@ -80,6 +82,36 @@ const styles = {
     display: "flex",
     gap: 10,
   }),
+
+  layoutRow: css({
+    display: "flex",
+    gap: 20,
+    alignItems: "flex-start",
+  }),
+
+  leftColumn: css({
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+  }),
+
+  signatureCard: css({
+    width: 220,
+    background: theme.colors.surfaceSubtle, // light grey
+    border: `1px solid ${theme.colors.border}`,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    lineHeight: 1.4,
+  }),
+
+  signatureTitle: css({
+    fontWeight: 600,
+    marginBottom: 6,
+    fontSize: 12,
+    color: theme.colors.textPrimary,
+  }),
 };
 
 export default function EmailDetail({
@@ -92,6 +124,8 @@ export default function EmailDetail({
   const [reply, setReply] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  const { settings } = useSettings();
+  console.log("thread", thread);
 
   // keep reply in sync when switching emails
   useEffect(() => {
@@ -112,10 +146,17 @@ export default function EmailDetail({
     if (!reply.trim()) return;
 
     try {
-      const updatedThread = await emailApi.sendReply(thread.id, reply);
+      const footer = settings
+        ? ["--", settings.signature, settings.name, settings.email]
+            .filter(Boolean)
+            .join("\n")
+        : "";
+
+      const fullReply = footer ? `${reply}\n\n${footer}` : reply;
+
+      const updatedThread = await emailApi.sendReply(thread.id, fullReply);
 
       onThreadUpdate(updatedThread);
-
       setReply("");
     } catch (err) {
       console.error("Failed to send reply", err);
@@ -182,6 +223,26 @@ export default function EmailDetail({
           <Button variant="secondary" onClick={handleCreateTask}>
             Create Task
           </Button>
+
+          {/* 🔥 SIGNATURE TOOLTIP */}
+          {settings && (
+            <Tooltip
+              position="top"
+              text={
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 2 }}
+                >
+                  <div style={{ fontWeight: 600 }}>Signature</div>
+                  <div>--</div>
+                  {settings.name && <div>{settings.name}</div>}
+                  {settings.signature && <div>{settings.signature}</div>}
+                  {settings.email && <div>{settings.email}</div>}
+                </div>
+              }
+            >
+              <div style={{ cursor: "pointer", opacity: 0.6 }}>ⓘ</div>
+            </Tooltip>
+          )}
         </div>
       </div>
     </div>

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { css } from "@emotion/css";
 import { theme } from "../../../shared/theme";
 import Input from "../../../shared/components/Input";
 import TextArea from "../../../shared/components/TextArea";
 import Button from "../../../shared/components/Button";
+import { useSettings } from "../../../shared/context/SettingsContext";
+import { updateSettings } from "../../../api/settings";
 
 const styles = {
   container: css({
@@ -83,9 +85,11 @@ const styles = {
 };
 
 export default function EmailSettings() {
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("john@email.com");
-  const [signature, setSignature] = useState("Best regards,");
+  const { settings, setSettings } = useSettings();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [signature, setSignature] = useState("");
 
   const [editing, setEditing] = useState({
     name: false,
@@ -95,6 +99,15 @@ export default function EmailSettings() {
 
   const isEditing = editing.name || editing.email || editing.signature;
 
+  // 🔥 LOAD FROM CONTEXT (not API directly)
+  useEffect(() => {
+    if (!settings) return;
+
+    setName(settings.name || "");
+    setEmail(settings.email || "");
+    setSignature(settings.signature || "");
+  }, [settings]);
+
   const toggleEdit = (key: keyof typeof editing) => {
     setEditing((prev) => ({
       ...prev,
@@ -102,14 +115,25 @@ export default function EmailSettings() {
     }));
   };
 
-  const handleSave = () => {
-    // TODO: persist settings (localStorage or backend)
+  // 🔥 SAVE TO BACKEND
+  const handleSave = async () => {
+    try {
+      const updated = await updateSettings({
+        name,
+        email,
+        signature,
+      });
 
-    setEditing({
-      name: false,
-      email: false,
-      signature: false,
-    });
+      setSettings(updated); // sync global state
+
+      setEditing({
+        name: false,
+        email: false,
+        signature: false,
+      });
+    } catch (err) {
+      console.error("Failed to save settings", err);
+    }
   };
 
   return (
@@ -192,14 +216,18 @@ export default function EmailSettings() {
           <Button
             variant="text"
             onClick={() => {
-              // reset editing + revert values if needed
+              // 🔥 revert to last saved (from context)
+              if (settings) {
+                setName(settings.name || "");
+                setEmail(settings.email || "");
+                setSignature(settings.signature || "");
+              }
+
               setEditing({
                 name: false,
                 email: false,
                 signature: false,
               });
-
-              // TODO: optionally reset values to last saved state
             }}
           >
             Cancel
