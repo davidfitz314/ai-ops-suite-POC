@@ -21,12 +21,12 @@ const styles = {
     fontSize: 12,
     padding: "4px 8px",
     borderRadius: 4,
-    whiteSpace: "nowrap",
+    whiteSpace: "normal",
     opacity: 0,
     pointerEvents: "none",
     transition: "opacity 0.15s ease",
     zIndex: 10,
-    minWidth: "max-content", // 👈 prevents shrink misalignment
+    minWidth: "240",
   }),
 };
 
