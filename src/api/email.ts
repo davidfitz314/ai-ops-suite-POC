@@ -19,7 +19,7 @@ export async function getEmails(): Promise<EmailThread[]> {
         id: m.id,
         content: m.content,
         direction: m.direction,
-        timestamp: m.timestamp,
+        timestamp: m.timestamp * 1000,
       })),
     }));
   }
@@ -49,7 +49,7 @@ export async function sendReply(
       id: m.id,
       content: m.content,
       direction: m.direction,
-      timestamp: m.timestamp,
+      timestamp: m.timestamp * 1000,
     })),
   };
 }
