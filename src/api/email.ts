@@ -28,6 +28,25 @@ export async function getEmails(): Promise<EmailThread[]> {
   return mockFetch([]);
 }
 
+export async function getEmailById(id: number): Promise<EmailThread> {
+  const res = await apiFetch<any>(`/emails/${id}`);
+
+  return {
+    id: res.id,
+    subject: res.subject,
+    from: res.fromEmail,
+    status: res.status,
+    extractedTask: res.extractedTask,
+    suggestedReply: res.suggestedReply,
+    messages: res.messages.map((m: any) => ({
+      id: m.id,
+      content: m.content,
+      direction: m.direction,
+      timestamp: m.timestamp * 1000, // keep fix
+    })),
+  };
+}
+
 // 🔥 REPLY
 export async function sendReply(
   id: number,

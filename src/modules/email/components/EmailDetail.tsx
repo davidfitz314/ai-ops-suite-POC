@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { css } from "@emotion/css";
-import type { EmailThread } from "../types";
+import type { EmailMessage, EmailThread } from "../types";
 import Button from "../../../shared/components/Button";
 import { theme } from "../../../shared/theme";
 import { formatTimeAgo } from "../../../shared/utils/time";
@@ -26,6 +26,7 @@ const styles = {
 
   subject: css({
     margin: 0,
+    color: theme.colors.textPrimary,
   }),
 
   from: css({
@@ -117,15 +118,16 @@ const styles = {
 export default function EmailDetail({
   thread,
   onThreadUpdate,
+  loading,
 }: {
   thread?: EmailThread;
   onThreadUpdate: (t: EmailThread) => void;
+  loading?: boolean;
 }) {
   const [reply, setReply] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const { settings } = useSettings();
-  console.log("thread", thread);
 
   // keep reply in sync when switching emails
   useEffect(() => {
@@ -138,6 +140,10 @@ export default function EmailDetail({
       behavior: "smooth",
     });
   }, [thread?.messages]);
+
+  if (loading) {
+    return <div className={styles.container}>⏳ Loading email...</div>;
+  }
 
   if (!thread) return <div>Select email</div>;
 
@@ -154,9 +160,24 @@ export default function EmailDetail({
 
       const fullReply = footer ? `${reply}\n\n${footer}` : reply;
 
-      const updatedThread = await emailApi.sendReply(thread.id, fullReply);
+      const newMessage: EmailMessage = {
+        id: Date.now(), // temp id
+        content: fullReply,
+        direction: "outbound",
+        timestamp: Date.now(),
+      };
 
-      onThreadUpdate(updatedThread);
+      // 🔥 update UI immediately
+      onThreadUpdate({
+        ...thread,
+        status: "replied",
+        messages: [...thread.messages, newMessage],
+      });
+
+      // 🔥 still call backend (but don't rely on it for UI)
+      await emailApi.sendReply(thread.id, fullReply);
+
+      setReply("");
       setReply("");
     } catch (err) {
       console.error("Failed to send reply", err);

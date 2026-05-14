@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { css } from "@emotion/css";
 import { theme } from "../../shared/theme";
 import TopBar from "../../shared/components/TopBar";
@@ -23,47 +23,65 @@ const styles = {
     flex: 1,
     overflow: "hidden",
   }),
+
+  menuToggle: css({
+    cursor: "pointer",
+    fontSize: 18,
+  }),
 };
 
 export default function EmailApp() {
   const [threads, setThreads] = useState<EmailThread[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [showTasks, setShowTasks] = useState<boolean>(false);
+  const [selectedThread, setSelectedThread] = useState<EmailThread | null>(
+    null
+  );
+  const [loadingThread, setLoadingThread] = useState(false);
+  const [showTasks, setShowTasks] = useState(false);
 
   const { tasks } = useTasks();
+  const loadSeqRef = useRef(0);
 
-  const updateThread = (updated: EmailThread) => {
+  const updateThread = useCallback((updated: EmailThread) => {
     setThreads((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-  };
-
-  // 🔥 Load threads from API
-  useEffect(() => {
-    emailApi.getEmails().then((data) => {
-      setThreads(data);
-
-      if (data.length > 0) {
-        setSelectedId(data[0].id);
-      }
-    });
+    setSelectedThread((prev) =>
+      prev?.id === updated.id ? { ...updated } : prev
+    );
   }, []);
 
-  // 🔥 Handle selecting an email
-  const handleSelect = async (id: number) => {
+  useEffect(() => {
+    let cancelled = false;
+    emailApi
+      .getEmails()
+      .then((data) => {
+        if (!cancelled) setThreads(data);
+      })
+      .catch((err) => {
+        if (!cancelled) console.error("Failed to load inbox", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSelect = useCallback(async (id: number) => {
+    const seq = ++loadSeqRef.current;
+    setLoadingThread(true);
     setSelectedId(id);
+    try {
+      const thread = await emailApi.getEmailById(id);
+      if (seq !== loadSeqRef.current) return;
+      setSelectedThread(thread);
+    } catch (err) {
+      if (seq !== loadSeqRef.current) return;
+      console.error("Failed to load email", err);
+    } finally {
+      if (seq === loadSeqRef.current) setLoadingThread(false);
+    }
+  }, []);
 
-    // mark as read in API
-    await emailApi.markAsRead(id);
-
-    // update local state
-    setThreads((prev) =>
-      prev.map((t) =>
-        t.id === id && t.status === "unread" ? { ...t, status: "read" } : t
-      )
-    );
-  };
-
-  // 🔥 Find selected thread
-  const selected = threads.find((t) => t.id === selectedId) || undefined;
+  const toggleTasks = useCallback(() => setShowTasks((p) => !p), []);
+  const closeTasks = useCallback(() => setShowTasks(false), []);
 
   return (
     <div className={styles.container}>
@@ -71,10 +89,7 @@ export default function EmailApp() {
         title="Email"
         showBack
         rightAction={
-          <div
-            style={{ cursor: "pointer", fontSize: 18 }}
-            onClick={() => setShowTasks((p) => !p)}
-          >
+          <div className={styles.menuToggle} onClick={toggleTasks}>
             ☰
           </div>
         }
@@ -82,7 +97,7 @@ export default function EmailApp() {
 
       <div className={styles.content}>
         <ErrorBoundary
-          fallback={<div style={{ padding: 20 }}>Inbox crashed</div>}
+          fallback={<div style={{ padding: 20 }}>Inbox Failed to load</div>}
         >
           <EmailInbox
             emails={threads}
@@ -92,9 +107,13 @@ export default function EmailApp() {
         </ErrorBoundary>
 
         <ErrorBoundary
-          fallback={<div style={{ padding: 20 }}>Detail crashed</div>}
+          fallback={<div style={{ padding: 20 }}>Detail Failed to load</div>}
         >
-          <EmailDetail thread={selected} onThreadUpdate={updateThread} />
+          <EmailDetail
+            thread={selectedThread}
+            onThreadUpdate={updateThread}
+            loading={loadingThread}
+          />
         </ErrorBoundary>
 
         <ErrorBoundary
@@ -102,11 +121,7 @@ export default function EmailApp() {
             <div style={{ padding: 20 }}> Task List failed to load</div>
           }
         >
-          <TaskPanel
-            tasks={tasks} // from context or state
-            isOpen={showTasks}
-            onClose={() => setShowTasks(false)}
-          />
+          <TaskPanel tasks={tasks} isOpen={showTasks} onClose={closeTasks} />
         </ErrorBoundary>
       </div>
     </div>
