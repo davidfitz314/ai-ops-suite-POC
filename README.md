@@ -63,7 +63,7 @@ This project is actively evolving.
 
 ## Purpose
 
-Kawika Tools is being developed as:
+AI Ops Suite is being developed as:
 
 * A practical AI workflow experiment
 * A portfolio project demonstrating system design + AI integration
