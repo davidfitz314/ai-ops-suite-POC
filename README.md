@@ -1,420 +1,91 @@
-# AI Ops Suite
+# Kawika Tools
 
-Simple AI-powered workflow tool for automating business intake, responses, and task tracking.
-
-## Tech
-
-- React + TypeScript (Vite)
-- Mock backend (initial)
-
-
-Perfect—this is exactly the kind of checkpoint that prevents future confusion 👍
-I’ll give you a **clean snapshot of your current system + architecture + decisions**, so when you come back, you don’t have to re-figure anything.
+AI-powered workflow platform for small business operations.
 
 ---
 
-# 🧠 🔖 PROJECT SNAPSHOT (Current State)
+## Overview
 
-## 🎯 Product Direction
+Kawika Tools is an experimental AI ops platform designed to streamline how small businesses handle communication and tasks.
 
-```text
-Kawika Tools
-→ Modular AI Ops Suite
+It focuses on a simple but powerful workflow:
 
-Current tools:
-- Email Assistant
-- Task Manager
-- Settings
-```
+**Email → AI understanding → Task creation → Action**
 
-Core philosophy:
-
-```text
-Fast UX
-Reactive state (no save unless necessary)
-Human-in-the-loop for AI actions
-```
+Instead of manually tracking requests, the system helps convert incoming messages into structured, actionable work.
 
 ---
 
-# 🧱 📁 CURRENT FILE STRUCTURE
+## What It Does
 
-```text
-src/
-  modules/
-    platform/
-      components/
-        Landing.tsx
-
-    email/
-      components/
-        EmailInbox.tsx
-        EmailDetail.tsx
-      EmailApp.tsx
-
-    tasks/
-      components/
-        TaskList.tsx
-        TaskDetail.tsx
-      TasksApp.tsx
-      types.ts
-
-    settings/
-      components/
-        EmailSettings.tsx
-      SettingsApp.tsx
-      index.ts
-
-  shared/
-    components/
-      Button.tsx
-      Input.tsx
-      TextArea.tsx
-      StatusDot.tsx
-      TopBar.tsx
-      Tooltip.tsx
-
-    context/
-      TaskContext.tsx
-
-    theme/
-      theme.ts
-
-    utils/
-      time.ts
-```
+* 📧 Reads and organizes email conversations
+* 🤖 Uses AI to suggest replies and extract tasks
+* ✅ Converts suggestions into trackable tasks
+* 📋 Manages task lifecycle (open → in progress → done)
 
 ---
 
-# 🧠 🧩 ARCHITECTURE DECISIONS
+## Key Concept
 
-## 1. State Management
+This is not just a CRUD app—it’s a workflow system.
 
-```text
-TaskContext (global)
-→ used by:
-   - Email (create task)
-   - Tasks (view/edit)
 ```
-
-Pattern:
-
-```text
-Single source of truth ✔️
-No prop drilling ✔️
-```
-
----
-
-## 2. Task System
-
-### Status model
-
-```ts
-type TaskStatus = "open" | "inProgress" | "done" | "closed";
-```
-
-### Behavior
-
-```text
-No cycling ❌
-Explicit actions ✔️
-
-open → start / cancel
-inProgress → complete / cancel
-done → close
-```
-
----
-
-## 3. UX Philosophy
-
-### Tasks
-
-```text
-Immediate updates (no save)
-```
-
-### Settings
-
-```text
-Controlled editing (Save + Cancel)
-```
-
-👉 intentional inconsistency = correct design
-
----
-
-## 4. Email → Task Flow (IMPORTANT)
-
-```text
-Email
-↓
-Create Task click
-↓
-Navigate → /tasks
-↓
-Prefill input
-↓
-User confirms
-```
-
-Key concept:
-
-```text
-AI suggests → human confirms
-```
-
----
-
-## 5. Input System
-
-```text
-Input:
-  default → visible input (TaskDetail)
-  inline  → blended edit (Settings)
-
-TextArea:
-  for multi-line only
-```
-
----
-
-## 6. Theming Insight (important lesson learned)
-
-```text
-Inline edit inputs → transparent
-Primary inputs → surface
-
-Settings panel overrides theme → light surface
-```
-
----
-
-# 🧠 🔄 CURRENT FEATURE SET
-
-## ✅ Email Module
-
-* inbox + detail
-* message threads
-* create task button
-* fallback if no extractedTask
-
----
-
-## ✅ Task Module
-
-* grouped by status
-* create task input
-* auto-select new task
-* detail panel
-* status icons
-* inline editing
-
----
-
-## ✅ Settings Module
-
-* display-first UI
-* edit toggle per field
-* Save / Cancel
-* structured layout
-
----
-
-## ✅ Platform Landing
-
-* tool navigation
-* task counts (open / inProgress / done)
-
----
-
-# 🧠 ⚠️ KNOWN TODOs
-
-### 🔴 High Priority
-
-```text
-- Persist tasks (localStorage or backend)
-- Persist settings
-```
-
----
-
-### 🟡 Medium
-
-```text
-- Save indicator (live updates)
-- Cancel should restore original values
-- Scroll-to-selected task
-```
-
----
-
-### 🟢 Future
-
-```text
-- Multi-task AI suggestions
-- Email reply generation
-- Task descriptions (not just title)
-- Drag & drop task states
-```
-
----
-
-# 🧠 🔌 NEXT PHASE (YOU ALREADY PLANNED CORRECTLY)
-
-## 🎯 Goal
-
-Replace:
-
-```text
-Mock data ❌
-```
-
-With:
-
-```text
-API-driven system ✔️
-```
-
----
-
-## 🧱 Phase 1: Mock API Layer (Frontend)
-
-Create:
-
-```text
-src/api/
-  tasks.ts
-  email.ts
-```
-
-Example:
-
-```ts
-export async function getTasks() {
-  return new Promise((res) =>
-    setTimeout(() => res(mockTasks), 300)
-  );
-}
-```
-
----
-
-## 🧱 Phase 2: Local Backend (PyCharm)
-
-You’re thinking:
-
-```text
-Python server (FastAPI likely)
-```
-
-Perfect choice 👍
-
----
-
-### Suggested stack
-
-```text
-FastAPI
-Uvicorn
-Pydantic
-```
-
----
-
-### Initial endpoints
-
-```text
-GET    /tasks
-POST   /tasks
-PATCH  /tasks/:id
-
-GET    /emails
-POST   /emails/reply
-
-POST   /ai/suggest-task
-```
-
----
-
-## 🧠 Phase 3: AI Integration (future)
-
-```text
-Email content
-↓
-AI extracts tasks
-↓
-Returns suggestions
-↓
-User confirms
-```
-
----
-
-# 🧠 🔥 IMPORTANT INSIGHT (SAVE THIS)
-
-You are building:
-
-```text
-NOT a CRUD app
-BUT a workflow system
-```
-
-Core loop:
-
-```text
 Input (Email)
-↓
-Interpret (AI)
-↓
-Confirm (User)
-↓
-Act (Tasks)
-↓
-Track (UI)
+→ Interpret (AI)
+→ Confirm (User)
+→ Act (Task)
+→ Track (UI)
 ```
+
+The user remains in control while AI accelerates decision-making.
 
 ---
 
-# 🧭 WHERE YOU LEFT OFF
+## Tech Stack
 
-You are at:
-
-```text
-UI + Architecture = solid ✔️
-```
-
-Next session:
-
-```text
-API layer + backend simulation
-```
+* Frontend: React (modular UI architecture)
+* Backend: FastAPI (REST API)
+* State: Context-based state management
+* AI: Custom backend agents for task + reply generation
 
 ---
 
-# 👍 Final Summary
+## Current Status
 
-You now have:
+This project is actively evolving.
 
-* ✔ modular architecture
-* ✔ shared state system
-* ✔ clean UX patterns
-* ✔ scalable design decisions
-
----
-
-# 🧭 When you come back, start with:
-
-```text
-"let’s build mock API layer"
-```
-
-or
-
-```text
-"let’s spin up FastAPI backend"
-```
+* Core UI modules implemented (Email, Tasks, Settings)
+* Backend API connected
+* AI task/reply suggestions functional
+* UI direction currently being iterated
 
 ---
 
+## Purpose
+
+Kawika Tools is being developed as:
+
+* A practical AI workflow experiment
+* A portfolio project demonstrating system design + AI integration
+* A foundation for a lightweight SaaS product
+
+---
+
+## Future Direction
+
+* Persistent storage (PostgreSQL)
+* Improved AI workflows and confidence scoring
+* Real-time task creation from suggestions
+* Enhanced UI/UX for faster decision loops
+
+---
+
+## Notes
+
+This project is intentionally simple in UI and structure to focus on workflow design and AI integration.
+
+---
+
+## Author
+
+Built by David Fitzgerald
